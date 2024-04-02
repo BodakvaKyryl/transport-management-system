@@ -105,63 +105,64 @@ public class App {
 					break;
 
 				case 4:
-    System.out.println("Editing transport status");
-    System.out.print("Enter transport license number: ");
-    String transportLicenseEdit = scanner.next();
-    for (Vehicle v : vehicles) {
-        if (v.getLicense().equals(transportLicenseEdit)) {
-            System.out.print("Enter new status (0 for not broken, 1 for broken): ");
-            int newStatus = scanner.nextInt();
-            boolean isReallyBroken = (newStatus == 1);
-            if (v.isBroken() != isReallyBroken) { // Status changed
-                v.setBroken(isReallyBroken);
-                if (isReallyBroken) { // If the vehicle is now broken
-                    // Check if there is a reserve bus available
-                    boolean reserveFound = false;
-                    for (Vehicle reserve : reserveVehicles) {
-                        boolean alreadyAssigned = false;
-                        for (Route defRoute : routes) {
-                            if (defRoute.getVehicles().contains(reserve)) {
-                                alreadyAssigned = true;
-                                break;
-                            }
-                        }
-                        if (!alreadyAssigned) {
-                            // Assign the reserve bus to the route of the broken transport
-                            for (Route defRoute : routes) {
-                                if (defRoute.getVehicles().contains(v)) {
-                                    defRoute.addVehicle(reserve);
-                                    System.out.println("Reserve bus assigned to route " + defRoute.getNumber());
-                                    reserveFound = true;
-                                    break;
-                                }
-                            }
-                            if (reserveFound) {
-                                break; // Exit loop if reserve bus is assigned
-                            }
-                        }
-                    }
-                    if (!reserveFound) {
-                        System.out.println("No reserve bus available for assignment.");
-                    }
-                } else { // If the vehicle is no longer broken
-                    // Remove the reserve bus from the route of the repaired transport
-                    for (Route defRoute : routes) {
-                        if (defRoute.getVehicles().contains(v)) {
-                            defRoute.getVehicles().removeIf(vehicle -> vehicle instanceof Bus && vehicle.getName().startsWith("Reserve"));
-                            System.out.println("Reserve bus removed from route " + defRoute.getNumber());
-                            break;
-                        }
-                    }
-                }
-                System.out.println("Status of transport with license " + transportLicenseEdit + " updated.");
-            } else {
-                System.out.println("Transport status remains unchanged.");
-            }
-            break;
-        }
-    }
-    break;
+					System.out.println("Editing transport status");
+					System.out.print("Enter transport license number: ");
+					String transportLicenseEdit = scanner.next();
+					for (Vehicle v : vehicles) {
+						if (v.getLicense().equals(transportLicenseEdit)) {
+							System.out.print("Enter new status (0 for not broken, 1 for broken): ");
+							int newStatus = scanner.nextInt();
+							boolean isReallyBroken = (newStatus == 1);
+							if (v.isBroken() != isReallyBroken) {
+								v.setBroken(isReallyBroken);
+								if (isReallyBroken) {
+									boolean reserveFound = false;
+									for (Vehicle reserve : reserveVehicles) {
+										boolean alreadyAssigned = false;
+										for (Route defRoute : routes) {
+											if (defRoute.getVehicles().contains(reserve)) {
+												alreadyAssigned = true;
+												break;
+											}
+										}
+										if (!alreadyAssigned) {
+											for (Route defRoute : routes) {
+												if (defRoute.getVehicles().contains(v)) {
+													defRoute.addVehicle(reserve);
+													System.out.println(
+															"Reserve bus assigned to route " + defRoute.getNumber());
+													reserveFound = true;
+													break;
+												}
+											}
+											if (reserveFound) {
+												break;
+											}
+										}
+									}
+									if (!reserveFound) {
+										System.out.println("No reserve bus available for assignment.");
+									}
+								} else {
+									for (Route defRoute : routes) {
+										if (defRoute.getVehicles().contains(v)) {
+											defRoute.getVehicles().removeIf(vehicle -> vehicle instanceof Bus
+													&& vehicle.getName().startsWith("Reserve"));
+											System.out
+													.println("Reserve bus removed from route " + defRoute.getNumber());
+											break;
+										}
+									}
+								}
+								System.out.println(
+										"Status of transport with license " + transportLicenseEdit + " updated.");
+							} else {
+								System.out.println("Transport status remains unchanged.");
+							}
+							break;
+						}
+					}
+					break;
 
 				case 5:
 					System.out.println("Viewing routes and transport");
