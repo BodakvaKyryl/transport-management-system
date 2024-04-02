@@ -132,7 +132,7 @@ public class App {
 			System.out.println("Route: " + route.getNumber());
 			System.out.println("Transport:");
 			for (Vehicle vehicle : route.getVehicles()) {
-				System.out.printf("\t|License: %-7s| Type: %-15s| Interval: %-3s| Status: %s%n|",
+				System.out.printf("\t|License: %-7s| Type: %-15s| Interval: %-3s| Status: %s%n",
 						vehicle.getLicense(), vehicle.getType(), vehicle.getDrivingInterval(),
 						(vehicle.isBroken() ? "Broken" : "Not Broken"));
 
@@ -149,7 +149,7 @@ public class App {
 				}
 			}
 			if (!assigned) {
-				System.out.printf("\t|License: %-7s| Type: %-15s| Interval: %-3d| Status: %s%n|",
+				System.out.printf("\t|License: %-7s| Type: %-15s| Interval: %-3d| Status: %s%n",
 						vehicle.getLicense(), vehicle.getType(), vehicle.getDrivingInterval(),
 						(vehicle.isBroken() ? "Broken" : "Not Broken"));
 			}
