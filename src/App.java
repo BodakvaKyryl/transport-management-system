@@ -4,12 +4,19 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class App {
+	private static final int RESERVE_VEHICLE_COUNT = 3;
+	private static List<Vehicle> reserveVehicles = new ArrayList<>();
+
 	public static void main(String[] args) {
 		List<Vehicle> vehicles = new ArrayList<>();
 		List<Route> routes = new ArrayList<>();
 
 		Scanner scanner = new Scanner(System.in);
 		Random random = new Random();
+
+		for (int i = 0; i < RESERVE_VEHICLE_COUNT; i++) {
+			reserveVehicles.add(new Bus("Reserve Bus " + (i + 1), "R" + String.format("%03d", i + 1), 25, false));
+		}
 
 		while (true) {
 			System.out.println("\nMenu:");
@@ -32,7 +39,7 @@ public class App {
 			switch (choice) {
 				case 1:
 					System.out.println("Creating route");
-					System.out.print("Enter route number: ");
+					System.out.print("Enter route name: ");
 					String routeNumber = scanner.next();
 					Route route = new Route(routeNumber, new ArrayList<>());
 					routes.add(route);
@@ -56,7 +63,7 @@ public class App {
 
 				case 3:
 					System.out.println("Assigning transport to route");
-					System.out.print("Enter route number: ");
+					System.out.print("Enter route name: ");
 					String routeNum = scanner.next();
 					System.out.print("Enter transport license number: ");
 					String transport = scanner.next();
@@ -105,13 +112,58 @@ public class App {
 						if (v.getLicense().equals(transportLicenseEdit)) {
 							System.out.print("Enter new status (0 for not broken, 1 for broken): ");
 							int newStatus = scanner.nextInt();
-							v.setBroken(newStatus == 1);
-							System.out
-									.println("Status of transport with license " + transportLicenseEdit + " updated.");
+							boolean isReallyBroken = (newStatus == 1);
+							if (v.isBroken() != isReallyBroken) {
+								v.setBroken(isReallyBroken);
+								if (isReallyBroken) {
+									boolean reserveFound = false;
+									for (Vehicle reserve : reserveVehicles) {
+										boolean alreadyAssigned = false;
+										for (Route defRoute : routes) {
+											if (defRoute.getVehicles().contains(reserve)) {
+												alreadyAssigned = true;
+												break;
+											}
+										}
+										if (!alreadyAssigned) {
+											for (Route defRoute : routes) {
+												if (defRoute.getVehicles().contains(v)) {
+													defRoute.addVehicle(reserve);
+													System.out.println(
+															"Reserve bus assigned to route " + defRoute.getNumber());
+													reserveFound = true;
+													break;
+												}
+											}
+											if (reserveFound) {
+												break;
+											}
+										}
+									}
+									if (!reserveFound) {
+										System.out.println("No reserve bus available for assignment.");
+									}
+								} else {
+									for (Route defRoute : routes) {
+										if (defRoute.getVehicles().contains(v)) {
+											defRoute.getVehicles().removeIf(vehicle -> vehicle instanceof Bus
+													&& vehicle.getName().startsWith("Reserve"));
+											System.out
+													.println("Reserve bus removed from route " + defRoute.getNumber());
+											break;
+										}
+									}
+								}
+								System.out.println(
+										"Status of transport with license " + transportLicenseEdit + " updated.");
+							} else {
+								System.out.println("Transport status remains unchanged.");
+							}
 							break;
 						}
 					}
 					break;
+
 				case 5:
 					System.out.println("Viewing routes and transport");
 					displayRoutesAndTransport(routes, vehicles);
@@ -135,7 +187,15 @@ public class App {
 				System.out.printf("\t|License: %-7s| Type: %-15s| Interval: %-3s| Status: %s%n",
 						vehicle.getLicense(), vehicle.getType(), vehicle.getDrivingInterval(),
 						(vehicle.isBroken() ? "Broken" : "Not Broken"));
+			}
+		}
 
+		if (!reserveVehicles.isEmpty()) {
+			System.out.println("\nReserve Transport:");
+			for (Vehicle vehicle : reserveVehicles) {
+				System.out.printf("\t|License: %-7s| Type: %-15s| Interval: %-3d| Status: %s (Reserve)%n",
+						vehicle.getLicense(), vehicle.getType(), vehicle.getDrivingInterval(),
+						(vehicle.isBroken() ? "Broken" : "Not Broken"));
 			}
 		}
 
@@ -155,5 +215,4 @@ public class App {
 			}
 		}
 	}
-
 }
